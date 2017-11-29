@@ -22,36 +22,45 @@ float integration0 = 0;
 float integration1 = 0;
 float integration2 = 0;
 float time_stamp = 1; // time stamp has to be assessed with clock
-float fittest_duty = 0.5;
+float fittest_duty = 0.5; // modulation
+
+/*switching duty*/
+unsigned int duty_scaled_conv_switch = 0;
+unsigned int duty_scaled_inv_switch1 = 0;
+unsigned int duty_scaled_inv_switch2 = 0;
+
 
 void initialize(){
-	float ref_current = 10;
-	float ref_voltage = 400;
-	float integration0 = 0;
-	float integration1 = 0;
-	float integration2 = 0;
-	float time_stamp = 1;
+	ref_current = 10;
+	ref_voltage = 400;
+	integration0 = 0;
+	integration1 = 0;
+	integration2 = 0;
+	time_stamp = 1;
 }
 
-void sensed_value_converter(float sensed){
+float sensed_value_converter(float sensed){
 	float actual = 0; // needs to be modified, find the coefficient
+	actual = sensed*coefficient;
+	return actual;
 }
+
 void epwm_activation(float pin_num, float duty){
 
 }
 
-void control_c(float sensed_i_dc){
+float control_c(float sensed_i_dc){
 	//// abbreviation later
 	float err = ref_current - sensed_i_dc;
 	integration0 += 250*err*time_stamp;
 	err = 0.1*err + integration0;
 	// err becomes duty
-
+	return 1/err;
 	// add epwm modulation function
 
 }
 
-void control_v(float sensed_i_ac, float sensed_v_dc){
+float control_i(float sensed_i_ac, float sensed_v_dc){
 	// volt ctrl
 	float err = ref_voltage - sensed_v_dc;
 	integration1 += 300*err*time_stamp;
@@ -61,7 +70,7 @@ void control_v(float sensed_i_ac, float sensed_v_dc){
 	integration2 += 250*err*time_stamp;
 	err = 0.02*err + integration2;
 	// value stored in err = duty;
-
+	return 1/err;
 	// add epwm modulation function and activate the other half as well
 }
 
@@ -71,22 +80,58 @@ void mppt_mode(){
 	 * caculate power with maximum resolution, but the process should not take long (find the trade off point)
 	 */
 
+
+
 }
 /**************************************/
 
 void stup()
 {
+	/**/
+	//reference
 	EALLOW;
 	GpioCtrlRegs.GPAMUX1.bit.GPIO8 = 1; // pin 17, epwm reg 5
+	GpioCtrlRegs.GPAMUX1.bit.GPIO5 = 1; // epwm 1A
+	GpioCtrlRegs.GPAMUX1.bit.GPIO6 = 1; // epwm 1B
+	GpioCtrlRegs.GPAMUX1.bit.GPIO7 = 1;  //epwm 2A
+	GpioCtrlRegs.GPAMUX1.bit.GPIO10 = 1; //epwm 2B
+	GpioCtrlRegs.GPAMUX2.bit.GPIO18 = 1; //epwm 5B
+	GpioCtrlRegs.GPAMUX2.bit.GPIO20 = 1; //epwm 6B
+
+	/*what is this?*/
 	GpioCtrlRegs.GPBMUX2.bit.GPIO63 = 0;
 
 	GpioCtrlRegs.GPBDIR.bit.GPIO63 = 1;
+	/**************/
 	EDIS;
 
 	EPwm5Regs.TBPRD = 3750;
 	EPwm5Regs.TBCTL.bit.CTRMODE = MODE_SET; // updown
 	EPwm5Regs.AQCTLA.bit.CAU = MODE_CLEAR;	// 1
 	EPwm5Regs.AQCTLA.bit.CAD = MODE_SET;	// 2
+	/**/
+	
+	//sensor gpio declaration needed
+
+	EPwm5Regs.TBPRD = 3750;
+	EPwm5Regs.TBCTL.bit.CTRMODE = MODE_SET; // updown
+	EPwm5Regs.AQCTLA.bit.CAU = MODE_CLEAR;	// 1
+	EPwm5Regs.AQCTLA.bit.CAD = MODE_SET;	// 2
+
+	EPwm6Regs.TBPRD = 3750;
+	EPwm6Regs.TBCTL.bit.CTRMODE = MODE_SET; // updown
+	EPwm6Regs.AQCTLA.bit.CAU = MODE_CLEAR;	// 1
+	EPwm6Regs.AQCTLA.bit.CAD = MODE_SET;	//2
+
+	EPwm1Regs.TBPRD = 3750;
+	EPwm1Regs.TBCTL.bit.CTRMODE = MODE_SET; // updown
+	EPwm1Regs.AQCTLA.bit.CAU = MODE_CLEAR;	// 1
+	EPwm1Regs.AQCTLA.bit.CAD = MODE_SET;	// 2
+
+	EPwm2Regs.TBPRD = 3750;
+    	EPwm2Regs.TBCTL.bit.CTRMODE = MODE_SET; // updown
+	EPwm2Regs.AQCTLA.bit.CAU = MODE_CLEAR;	// 1
+	EPwm2Regs.AQCTLA.bit.CAD = MODE_SET;	// 2
 }
 
 
@@ -110,9 +155,19 @@ void main(void)
 
 	easyDSP_SCI_Init();					// easyDSP setup
 
+	/********************************/
+	//       process
+	///interrupt ?
 	while(1){
-		EPwm5Regs.CMPA.half.CMPA = duty_scaled;
+		duty_scaled_conv_switch = EPwm5Regs.TBPRD/(control_c(/*sensed_value*/));
+		duty_scaled_inv_switch1 = EPwm1Regs.TBPRD/(control_i(/*sensed_value*/));
+		duty_scaled_inv_switch2 = -duty_scaled_inv_switch1;
+		EPwm5Regs.CMPA.half.CMPA = duty_scaled_conv_switch;
+		EPwm6Regs.CMPA.half.CMPA = duty_scaled_conv_switch;
+		EPwm1Regs.CMPA.half.CMPA = duty_scaled_inv_switch1;
+		EPwm2Regs.CMPA.half.CMPA = duty_scaled_inv_switch2;
 	}
 
 	EXT_ON;
 }
+
