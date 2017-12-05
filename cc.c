@@ -54,7 +54,6 @@ void current_controller()
 
 	/////////////////////////////
 	//contorller
-	int counter = 0;
 
 	//inverter control
 	/*
@@ -94,18 +93,17 @@ void current_controller()
 	err_i1[1] = ref_voltage - sense_conv_end_v;
 	integration1 += 150*(err_i1[0]+err_i1[1])*Tsamp;
 	err_i1[1] = -(0.05*err_i1[1] + integration1);
-	err_i2[1] = err_i1[1]*sqrt_2*sin(2*pi*60*counter*Tsamp); // needs to be fixed
+	err_i2[1] = err_i1[1]*sqrt_2*sin(2*pi*60*cc_cnt*Tsamp); // needs to be fixed
 	err_i2[0] = err_i2[1];
 	err_i2[1] = err_i2[1] - sense_inv_i;
 	integration2 += 125*(err_i2[0]+err_i2[1])*Tsamp;
 	err_i2[1] = 0.02*err_i2[1] + integration2;
-	duty_scaled_conv_switch = EPwm5Regs.TBPRD*(err_c[1]);
+	duty_scaled_conv_switch = EPwm5Regs.TBPRD*(1-err_c[1]);
 	duty_scaled_inv_switch1 = EPwm1Regs.TBPRD*(err_i2[1]);
 	duty_scaled_inv_switch2 = duty_scaled_inv_switch1;
 	EPwm5Regs.CMPA.half.CMPA = duty_scaled_conv_switch;
 	EPwm1Regs.CMPA.half.CMPA = duty_scaled_inv_switch1;
 	EPwm2Regs.CMPA.half.CMPA = duty_scaled_inv_switch2;
-	counter++;
 
 	////////////////////////////
     /*
