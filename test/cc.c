@@ -28,7 +28,7 @@ void current_controller()
 
 	/////////////////////////////
 	//contorller
-	EPwm5Regs.CMPA.half.CMPA = EPwm5Regs.TBPRD*sin(2*pi*60*Tsamp*counter);
+	EPwm5Regs.CMPA.half.CMPA = 0;
 	EPwm1Regs.CMPA.half.CMPA = EPwm1Regs.TBPRD*sin(2*pi*60*Tsamp*counter);
 	EPwm2Regs.CMPA.half.CMPA = EPwm2Regs.TBPRD*sin(2*pi*60*Tsamp*counter);
 
