@@ -56,7 +56,7 @@ void current_controller()
 	//contorller
 	int counter = 0;
 
-	//inverter control
+	//inverter control // MPPT algorism Maximum Power Point Tracking
 	/*
 	float duty1 = 0;
 	for(duty1 = 0; duty1 <= 1; duty1 += 0.001){
