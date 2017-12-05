@@ -17,9 +17,9 @@ void polling_parameter_update()
 ///////////////////////////////
 float ref_current = 10;
 float ref_voltage = 400;
-float integration0 = 0;
-float integration1 = 0;
-float integration2 = 0;// time stamp has to be assessed with clock
+float integration0 = 0; //boost converter current controller 
+float integration1 = 0; //invertor voltage controller
+float integration2 = 0;// time stamp has to be assessed with clock //invertor current controller
 float power = 0; // modulation
 float err_c[2] = {0};
 float err_i1[2] = {0};
@@ -47,10 +47,10 @@ void current_controller()
 	delay(150);
 	cc_cnt++;
 
-	AD_EXT1 = AD_EXT1_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT1_OFFSET);// masked value multiplied by 4
-	AD_EXT2 = AD_EXT2_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT2_OFFSET);// & bit operation with 0x00003FFF
-	AD_EXT3 = AD_EXT3_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT3_OFFSET);//
-	AD_EXT4 = AD_EXT4_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT4_OFFSET);
+	AD_EXT1 = AD_EXT1_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT1_OFFSET);// masked value multiplied by 4 //converter i sensor
+	AD_EXT2 = AD_EXT2_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT2_OFFSET);// & bit operation with 0x00003FFF // DC link Voltage
+	AD_EXT3 = AD_EXT3_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT3_OFFSET);// system i
+	AD_EXT4 = AD_EXT4_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT4_OFFSET);// MPPT V sensor
 
 	/////////////////////////////
 	//contorller
