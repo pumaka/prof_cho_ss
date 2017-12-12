@@ -17,7 +17,7 @@ float coff_b_APF = 0.0, coff_b_LPF_Em = 0.0, Em_est_LPF = 0.0, Em_est = 0.0, Err
 float coff_a_APF = 0.0, coff_a_LPF_Em = 0.0;
 float f_APF = 60.0, f_LPF_Em = 1.0, w_APF = 0.0, w_LPF_Em = 0.0;
 float sin_thetar_grid=0.0, thetar_grid=0.0, sin_thetar =0.0, cos_thetar_grid=0.0;
-float theta=0.0, ref_freq=0.0, sinwav=0.0;
+float theta=0.0, ref_freq=60.0, sinwav=0.0;
 float duty_ref=0.0, duty_ref_ne=0.0;
 float I_inv_falut=0.0, I_inv_falut_flag=0.0;
 int relay_state = 0;
@@ -30,15 +30,9 @@ float I_dc_fault = 0.0, I_dc_fault_flag=0.0;
 float Kp_V_con = 0.0, Ki_V_con = 0.0;
 float I_con_err = 0.0, Int_con_err = 0.0, iV_con_1 = 0.0, iV_con_2 = 0.0;
 ///////////////////////////////
-<<<<<<< HEAD
 float ref_current = 0; //10
 float ref_voltage = 0; //400
 float integration0 = 0; //boost converter current controller
-=======
-float ref_current = 10;
-float ref_voltage = 400;
-float integration0 = 0; //boost converter current controller 
->>>>>>> 65f21b6375c4fd0e0c4304671e4a03f123b808e6
 float integration1 = 0; //invertor voltage controller
 float integration2 = 0;// time stamp has to be assessed with clock //invertor current controller
 float power = 0; // modulation
@@ -88,18 +82,11 @@ void current_controller()
 	delay(150);
 	cc_cnt++;
 
-<<<<<<< HEAD
 
 	AD_EXT1 = AD_EXT1_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT1_OFFSET);
 	AD_EXT2 = AD_EXT2_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT2_OFFSET);
 	AD_EXT3 = AD_EXT3_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT3_OFFSET);
 	AD_EXT4 = AD_EXT4_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT4_OFFSET);
-=======
-	AD_EXT1 = AD_EXT1_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT1_OFFSET);// masked value multiplied by 4 //converter i sensor
-	AD_EXT2 = AD_EXT2_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT2_OFFSET);// & bit operation with 0x00003FFF // DC link Voltage
-	AD_EXT3 = AD_EXT3_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT3_OFFSET);// system i
-	AD_EXT4 = AD_EXT4_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT4_OFFSET);// MPPT V sensor
->>>>>>> 65f21b6375c4fd0e0c4304671e4a03f123b808e6
 
 	V_con = AD_EXT3;
 	I_inv = AD_EXT2;
@@ -121,10 +108,6 @@ void current_controller()
 	/////////////////////////////
 	//contorller
 
-<<<<<<< HEAD
-=======
-	//inverter control // MPPT algorism Maximum Power Point Tracking
->>>>>>> 65f21b6375c4fd0e0c4304671e4a03f123b808e6
 	/*
 	//alpha_beta_generation
 	cos_thetar_grid = cos(thetar_grid);
@@ -162,63 +145,73 @@ void current_controller()
 		err_c[1] = 0.1*err_c[1] + integration0;
 		err_c[0] = err_c[1];
 */
-	switch(cc){
-		case 0:
-			pwm_gating_ena = 0;
-			integration0 = 0;
-			break;
-		case 1:
-			pwm_gating_ena = 1;
-			I_con_err = I_ref_in_con - I_con;
-			kpI_con = 0.1 * I_con_err);
-			Int_con_err += (I_con_er*Tsamp);
-			if (Int_con_err >= 1){
-				Int_con_err = 1;
-			}
-			else if (Int_con_err <= -1){
-				Int_con_err = -1;
-			}
-			iV_con_1 = 250 * Int_con_err;
-			iV_con_2 = kpI_con + iV_con_1;
-			if (iV_con_2 >= 1){
-				iV_con_2 = 1;
-			}
-			else if (iV_con_2 <= -1){
-				iV_con_2 = -1;
-			}
+		switch(cc){
+			case 0:
+				pwm_gating_ena = 0;
+				integration0 = 0;
+				break;
+			case 1:
+				pwm_gating_ena = 1;
+				I_con_err = I_ref_in_con - I_con;
+				kpI_con = (0.005 * I_con_err);
+				Int_con_err += (I_con_err*Tsamp);
+				if (Int_con_err >= 1){
+					Int_con_err = 1;
+				}
+				else if (Int_con_err <= -1){
+					Int_con_err = -1;
+				}
+				iV_con_1 = 300 * Int_con_err;
+				iV_con_2 = kpI_con + iV_con_1;
+				if (iV_con_2 >= 1){
+					iV_con_2 = 1;
+				}
+				else if (iV_con_2 <= -1){
+					iV_con_2 = -1;
+				}
+
 				V_err = -(V_conv_in - V_con);
-			kpV_con = Kp_V_con * V_err; // 0.05
-			Vnt_err += (V_err * Tsamp);
-			if (Vnt_err >= 1){
-				Vnt_err = 1;
-			}
-			else if (Vnt_err <= -1){
-				Vnt_err = -1;
-			}
-			kiV_con = Ki_V_con * Vnt_err; // 300
-			I_ref_in = (kpV_con + kiV_con)*sinwav*1.414;
-			I_err = I_ref_in - I_inv;
-			kpI_con_1 = 0.02 * I_err;
-			Int_err += (I_err*Tsamp);
-			if (Int_err >= 1){
-				Int_err = 1;
-			}
-			else if (Int_err <= -1){
-				Int_err = -1;
-			}
-			kiI_con_1 = 250 * Int_err;
-			PI_con = kpI_con_1 + kiI_con_1;
-			if (PI_con >= 1){
-				PI_con = 1;
-			}
-			else if (PI_con <= -1){
-				PI_con = -1;
-			}
-			PI_con_ne=-PI_con;
-			EPwm5Regs.CMPA.half.CMPA = (int)(((float)pwm_g1.phase_duty_max_scaled)*(1-err_c[3]));
-			EPwm1Regs.CMPA.half.CMPA = (int)(((float)pwm_g1.phase_duty_half_scaled*PI_con_ne+pwm_g1.phase_duty_half_scaled));
-			EPwm2Regs.CMPA.half.CMPA = (int)(((float)pwm_g1.phase_duty_half_scaled*PI_con+pwm_g1.phase_duty_half_scaled));
-			break;
+				kpV_con = 1 * V_err; // 0.05
+				Vnt_err += (V_err * Tsamp);
+				if (Vnt_err >= 1){
+					Vnt_err = 1;
+				}
+				else if (Vnt_err <= -1){
+					Vnt_err = -1;
+				}
+				kiV_con = 1 * Vnt_err; // 300
+
+				I_ref_in = (kpV_con + kiV_con)*sinwav*1.414;
+				if (I_ref_in>=20){
+					I_ref_in = 20;
+				}
+				else if (I_ref_in <= 0){
+					I_ref_in = 0;
+				}
+
+				I_err = I_ref_in - I_inv;
+				kpI_con_1 = 0.02 * I_err;
+				Int_err += (I_err*Tsamp);
+				if (Int_err >= 1){
+					Int_err = 1;
+				}
+				else if (Int_err <= -1){
+					Int_err = -1;
+				}
+				kiI_con_1 = 250 * Int_err;
+				PI_con = kpI_con_1 + kiI_con_1;
+				if (PI_con >= 1){
+					PI_con = 1;
+			    }
+				else if (PI_con <= -1){
+					PI_con = -1;
+				}
+				PI_con_ne=-PI_con;
+
+				EPwm5Regs.CMPA.half.CMPA = (int)(((float)pwm_g1.phase_duty_max_scaled)*(1-err_c[3]));
+				EPwm1Regs.CMPA.half.CMPA = (int)(((float)pwm_g1.phase_duty_half_scaled*PI_con_ne+pwm_g1.phase_duty_half_scaled));
+				EPwm2Regs.CMPA.half.CMPA = (int)(((float)pwm_g1.phase_duty_half_scaled*PI_con+pwm_g1.phase_duty_half_scaled));
+				break;
 		}
 		////////////////////////////
 		/*
