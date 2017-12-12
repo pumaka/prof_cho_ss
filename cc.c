@@ -208,7 +208,12 @@ void current_controller()
 			}
 			kiI_con_1 = 250 * Int_err;
 			PI_con = kpI_con_1 + kiI_con_1;
-			PI_con = (PI_con>=1)?1:(PI_con<=-1)?-1:PI_con;
+			if (PI_con >= 1){
+				PI_con = 1;
+			}
+			else if (PI_con <= -1){
+				PI_con = -1;
+			}
 			PI_con_ne=-PI_con;
 			EPwm5Regs.CMPA.half.CMPA = (int)(((float)pwm_g1.phase_duty_max_scaled)*(1-err_c[3]));
 			EPwm1Regs.CMPA.half.CMPA = (int)(((float)pwm_g1.phase_duty_half_scaled*PI_con_ne+pwm_g1.phase_duty_half_scaled));
