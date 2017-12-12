@@ -14,3 +14,5 @@
 	EPwm3Regs.TBCTL.bit.CTRMODE = 0x02; // updown
 	EPwm3Regs.AQCTLA.bit.CAU = 0x01;	// 1
 	EPwm3Regs.AQCTLA.bit.CAD = 0x02;	// 2
+
+// do not change

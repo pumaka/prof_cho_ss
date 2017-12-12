@@ -30,9 +30,15 @@ float I_dc_fault = 0.0, I_dc_fault_flag=0.0;
 float Kp_V_con = 0.0, Ki_V_con = 0.0;
 float I_con_err = 0.0, Int_con_err = 0.0, iV_con_1 = 0.0, iV_con_2 = 0.0;
 ///////////////////////////////
+<<<<<<< HEAD
 float ref_current = 0; //10
 float ref_voltage = 0; //400
 float integration0 = 0; //boost converter current controller
+=======
+float ref_current = 10;
+float ref_voltage = 400;
+float integration0 = 0; //boost converter current controller 
+>>>>>>> 65f21b6375c4fd0e0c4304671e4a03f123b808e6
 float integration1 = 0; //invertor voltage controller
 float integration2 = 0;// time stamp has to be assessed with clock //invertor current controller
 float power = 0; // modulation
@@ -82,11 +88,18 @@ void current_controller()
 	delay(150);
 	cc_cnt++;
 
+<<<<<<< HEAD
 
 	AD_EXT1 = AD_EXT1_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT1_OFFSET);
 	AD_EXT2 = AD_EXT2_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT2_OFFSET);
 	AD_EXT3 = AD_EXT3_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT3_OFFSET);
 	AD_EXT4 = AD_EXT4_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT4_OFFSET);
+=======
+	AD_EXT1 = AD_EXT1_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT1_OFFSET);// masked value multiplied by 4 //converter i sensor
+	AD_EXT2 = AD_EXT2_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT2_OFFSET);// & bit operation with 0x00003FFF // DC link Voltage
+	AD_EXT3 = AD_EXT3_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT3_OFFSET);// system i
+	AD_EXT4 = AD_EXT4_GAIN*((float)((0x00003FFF&(*(int *)0x00004000))<<2) - AD_EXT4_OFFSET);// MPPT V sensor
+>>>>>>> 65f21b6375c4fd0e0c4304671e4a03f123b808e6
 
 	V_con = AD_EXT3;
 	I_inv = AD_EXT2;
@@ -108,6 +121,10 @@ void current_controller()
 	/////////////////////////////
 	//contorller
 
+<<<<<<< HEAD
+=======
+	//inverter control // MPPT algorism Maximum Power Point Tracking
+>>>>>>> 65f21b6375c4fd0e0c4304671e4a03f123b808e6
 	/*
 	//alpha_beta_generation
 	cos_thetar_grid = cos(thetar_grid);
